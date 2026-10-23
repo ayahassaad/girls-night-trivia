@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ff2d92">
+<title>Girls Night Trivia</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@500;600;700&family=Yeseva+One&display=swap">
+<style>
+/* Layout: one centred column of glossy cards on a glitter-dust page, phone first */
+:root {
+  --bg: #ffe6f2;
+  --bg2: #ffd0e8;
+  --card: #fff8fc;
+  --ink: #5e1043;
+  --muted: #a0527f;
+  --pink: #ff2d92;
+  --pink-soft: #ffb8dc;
+  --gold: #f4a91f;
+  --lilac: #c9a8ff;
+  --good: #1fa56a;
+  --bad: #d63a5c;
+  --line: #ffbfe0;
+  --font-display: "Yeseva One", Georgia, serif;
+  --font-body: "Quicksand", system-ui, sans-serif;
+  --font-script: "Dancing Script", cursive;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #2a0c22; --bg2: #3d1030; --card: #3a1230; --ink: #ffe3f2; --muted: #e8a3cb;
+    --pink: #ff5cad; --pink-soft: #7a2760; --gold: #ffc54d; --lilac: #b394f0;
+    --good: #4cd694; --bad: #ff7a96; --line: #6d2459; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #2a0c22; --bg2: #3d1030; --card: #3a1230; --ink: #ffe3f2; --muted: #e8a3cb;
+  --pink: #ff5cad; --pink-soft: #7a2760; --gold: #ffc54d; --lilac: #b394f0;
+  --good: #4cd694; --bad: #ff7a96; --line: #6d2459; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { color-scheme: light dark; }
+body { margin: 0; }
+body {
+  background: radial-gradient(circle at 20% 0%, var(--bg2), var(--bg) 55%) fixed;
+  color: var(--ink);
+  font: 600 16px/1.45 var(--font-body);
+  padding-block: 20px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+#sparkles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+#sparkles span { position: absolute; color: var(--gold); opacity: .0; animation: twinkle 3.4s ease-in-out infinite; }
+@keyframes twinkle { 0%,100% { opacity: 0; transform: scale(.4) rotate(0); } 50% { opacity: .9; transform: scale(1) rotate(25deg); } }
+#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
+.wrap { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+header { text-align: center; display: flex; flex-direction: column; gap: 2px; align-items: center; }
+.script { font: 700 26px/1 var(--font-script); color: var(--pink); }
+h1 { font: 400 clamp(34px, 9vw, 46px)/1.05 var(--font-display); margin: 0; color: var(--ink); text-wrap: balance;
+  text-shadow: 0 2px 0 var(--pink-soft); }
+h2 { font: 400 24px/1.2 var(--font-display); margin: 0; text-wrap: balance; }
+.me { display: inline-flex; gap: 8px; align-items: center; margin-top: 8px; background: var(--card); border: 2px solid var(--line);
+  padding: 4px 14px; border-radius: 999px; font-size: 14px; }
+.me b { color: var(--pink); }
+.card { background: var(--card); border: 2px solid var(--line); border-radius: 26px; padding: 20px;
+  box-shadow: 0 8px 0 var(--pink-soft), 0 18px 30px -14px rgba(255,45,146,.35); display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.tag { align-self: flex-start; background: linear-gradient(90deg, var(--pink), var(--lilac)); color: #fff; font-size: 13px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; padding: 4px 12px; border-radius: 999px; }
+.prog { font-size: 13px; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; display: flex; justify-content: space-between; gap: 8px; }
+.bar { height: 8px; background: var(--pink-soft); border-radius: 99px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--pink), var(--gold)); border-radius: 99px; transition: width .4s; }
+.q { font: 400 clamp(22px, 6vw, 28px)/1.25 var(--font-display); margin: 0; text-wrap: balance; }
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opt { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; font: inherit; color: var(--ink); background: var(--bg);
+  border: 2px solid var(--line); border-radius: 18px; padding: 12px 14px; cursor: pointer; position: relative; overflow: hidden; min-width: 0; }
+.opt:hover:not(:disabled) { border-color: var(--pink); }
+.opt:focus-visible, .btn:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.opt .letter { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--pink-soft); display: grid; place-items: center; font-weight: 700; }
+.opt .txt { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.opt.sel { border-color: var(--pink); background: var(--pink-soft); }
+.opt.sel .letter { background: var(--pink); color: #fff; }
+.opt.right { border-color: var(--good); background: color-mix(in srgb, var(--good) 18%, var(--card)); }
+.opt.right .letter { background: var(--good); color: #fff; }
+.opt.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, var(--card)); }
+.opt.wrong .letter { background: var(--bad); color: #fff; }
+.opt:disabled { cursor: default; }
+.opt .cnt { flex: none; font-size: 13px; color: var(--muted); }
+.hint { font-size: 14px; color: var(--muted); text-align: center; }
+.btn { font: 700 17px var(--font-body); border: 0; border-radius: 999px; padding: 13px 22px; cursor: pointer; color: #fff;
+  background: linear-gradient(180deg, #ff63b0, var(--pink)); box-shadow: 0 5px 0 #c4156f; }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #c4156f; }
+.btn.ghost { background: var(--card); color: var(--ink); border: 2px solid var(--line); box-shadow: 0 4px 0 var(--pink-soft); }
+.btn:disabled { opacity: .55; cursor: default; }
+input[type=text] { font: 700 18px var(--font-body); width: 100%; padding: 13px 16px; border-radius: 16px; border: 2px solid var(--line);
+  background: var(--bg); color: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.chip { background: var(--bg); border: 2px solid var(--line); border-radius: 999px; padding: 4px 14px; font-size: 15px; overflow-wrap: anywhere; }
+.fact { background: var(--bg); border-radius: 16px; padding: 12px 14px; font-size: 15px; border: 2px dashed var(--lilac); }
+.fact b { color: var(--pink); }
+.board { display: flex; flex-direction: column; gap: 8px; padding: 0; margin: 0; list-style: none; }
+.row { display: flex; align-items: center; gap: 12px; background: var(--bg); border-radius: 16px; padding: 10px 14px; border: 2px solid transparent; min-width: 0; }
+.row.you { border-color: var(--pink); }
+.row .rk { flex: none; width: 30px; text-align: center; font: 400 20px var(--font-display); color: var(--pink); }
+.row .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.row .pt { font-variant-numeric: tabular-nums; font-weight: 700; }
+.podium { display: flex; align-items: flex-end; justify-content: center; gap: 8px; padding-top: 6px; }
+.pod { flex: 1; min-width: 0; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.pod .nm { font-weight: 700; overflow-wrap: anywhere; }
+.pod .blk { width: 100%; border-radius: 16px 16px 0 0; background: linear-gradient(180deg, var(--pink), var(--lilac)); display: grid; place-items: start center;
+  padding-top: 8px; color: #fff; font: 400 28px var(--font-display); }
+.pod.p1 .blk { height: 120px; background: linear-gradient(180deg, var(--gold), var(--pink)); }
+.pod.p2 .blk { height: 90px; }
+.pod.p3 .blk { height: 66px; }
+.pod .crown { font-size: 30px; }
+.host { border-style: dashed; }
+.host .lbl { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.host input[type=text] { flex: 1 1 160px; width: auto; min-width: 0; }
+.host .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.sub { color: var(--muted); font-size: 14px; text-align: center; }
+.mine-up { color: var(--good); font-weight: 700; text-align: center; font-size: 18px; }
+.mine-no { color: var(--bad); font-weight: 700; text-align: center; font-size: 18px; }
+/* ---- space glam layer ---- */
+@property --ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+:root { --star: #ffffff; }
+.neb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; animation: drift 16s ease-in-out infinite alternate; }
+@keyframes drift { to { transform: translate(10vw, 7vh) scale(1.3); } }
+.float { position: absolute; bottom: -12vh; font-size: var(--s, 24px); opacity: 0; animation: floatUp var(--d, 22s) linear infinite; animation-delay: var(--l, 0s); }
+@keyframes floatUp {
+  0% { transform: translate(0, 0) rotate(0); opacity: 0; }
+  10% { opacity: .85; } 90% { opacity: .85; }
+  100% { transform: translate(var(--x, 30px), -118vh) rotate(360deg); opacity: 0; }
+}
+.planet { position: absolute; line-height: 1; filter: drop-shadow(0 0 18px var(--pink)); animation: bob 7s ease-in-out infinite alternate; }
+.planet.p-a { top: 4vh; right: -2vw; font-size: clamp(60px, 14vw, 120px); }
+.planet.p-b { bottom: 8vh; left: -2vw; font-size: clamp(44px, 10vw, 84px); animation-duration: 9s; }
+@keyframes bob { from { transform: translateY(-14px) rotate(-8deg); } to { transform: translateY(14px) rotate(10deg); } }
+.shoot { position: absolute; height: 3px; width: 150px; border-radius: 3px; opacity: 0;
+  background: linear-gradient(90deg, transparent, #fff, var(--gold)); filter: drop-shadow(0 0 6px var(--gold));
+  animation: shoot 1.1s ease-in forwards; }
+@keyframes shoot { 0% { opacity: 1; transform: translate(0, 0) rotate(30deg); } 100% { opacity: 0; transform: translate(60vw, 35vw) rotate(30deg); } }
+#fx { position: fixed; inset: 0; pointer-events: none; z-index: 30; overflow: hidden; }
+.sp { position: absolute; color: var(--gold); line-height: 1; opacity: 1; transform: translate(-50%, -50%); animation: burst var(--t, .8s) ease-out forwards; }
+@keyframes burst { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.2) rotate(200deg); opacity: 0; } }
+
+header { position: relative; }
+h1 { background: linear-gradient(100deg, var(--ink) 0 32%, var(--pink) 44%, var(--gold) 50%, var(--pink) 56%, var(--ink) 68% 100%);
+  background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none;
+  filter: drop-shadow(0 3px 0 var(--pink-soft)); animation: sheen 5s ease-in-out infinite alternate; }
+@keyframes sheen { from { background-position: 100% 0; } to { background-position: 0 0; } }
+.script { display: inline-block; animation: wobble 3.2s ease-in-out infinite; }
+@keyframes wobble { 0%,100% { transform: rotate(-3deg) scale(1); } 50% { transform: rotate(3deg) scale(1.08); } }
+.orb { position: absolute; font-style: normal; color: var(--gold); pointer-events: none; animation: spinpulse 3s ease-in-out infinite; }
+.orb.o1 { left: 4%; top: 22%; font-size: 26px; } .orb.o2 { right: 5%; top: 34%; font-size: 20px; animation-delay: .8s; color: var(--pink); }
+.orb.o3 { left: 16%; bottom: 6%; font-size: 16px; animation-delay: 1.5s; } .orb.o4 { right: 18%; top: 4%; font-size: 14px; animation-delay: 2.1s; }
+@keyframes spinpulse { 0%,100% { transform: rotate(0) scale(.6); opacity: .5; } 50% { transform: rotate(180deg) scale(1.3); opacity: 1; } }
+
+.card::before { content: ""; position: absolute; inset: -2px; border-radius: 28px; padding: 2px; pointer-events: none;
+  background: conic-gradient(from var(--ang), var(--pink), var(--gold), var(--lilac), var(--pink));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); animation: holo 6s linear infinite; }
+@keyframes holo { to { --ang: 360deg; } }
+.enter > .card { animation: rise .75s cubic-bezier(.2, .9, .3, 1.15) both; }
+.enter > .card:nth-child(2) { animation-delay: .15s; } .enter > .card:nth-child(3) { animation-delay: .3s; }
+@keyframes rise { from { opacity: 0; transform: translateY(36px) scale(.92) rotate(-1.5deg); } }
+.enter .opt { animation: pop .55s cubic-bezier(.2, 1.4, .4, 1) both; }
+.enter .opt:nth-child(1) { animation-delay: .25s; } .enter .opt:nth-child(2) { animation-delay: .35s; }
+.enter .opt:nth-child(3) { animation-delay: .45s; } .enter .opt:nth-child(4) { animation-delay: .55s; }
+.enter .chip, .enter .row { animation: pop .5s cubic-bezier(.2, 1.4, .4, 1) both; }
+.enter .chip:nth-child(n), .enter .row:nth-child(n) { animation-delay: calc(var(--i, 0) * 60ms + .2s); }
+@keyframes pop { from { opacity: 0; transform: scale(.6) translateY(14px); } }
+.opt { transition: transform .15s, box-shadow .2s, border-color .2s; }
+.opt:hover:not(:disabled) { transform: translateY(-3px) scale(1.015); box-shadow: 0 8px 18px -6px var(--pink); }
+.opt:active:not(:disabled) { transform: scale(.97); }
+.opt.right { animation: glow 1.6s ease-in-out infinite; }
+@keyframes glow { 0%,100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 22px 2px var(--good); } }
+.opt.wrong { animation: shake .5s; }
+@keyframes shake { 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
+.mine-up { animation: heart 1.1s ease-in-out infinite; }
+@keyframes heart { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+.btn { position: relative; overflow: hidden; }
+.btn:not(.ghost)::after { content: ""; position: absolute; top: 0; left: -70%; width: 40%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .75), transparent); transform: skewX(-20deg); animation: sweep 3.2s ease-in-out infinite; }
+@keyframes sweep { 0%, 55% { left: -70%; } 100% { left: 130%; } }
+.bar i { background: linear-gradient(90deg, var(--pink), var(--gold), var(--pink)); background-size: 200% 100%; animation: sheen 2.4s linear infinite alternate; }
+.tag { animation: tagglow 3s ease-in-out infinite; }
+@keyframes tagglow { 50% { box-shadow: 0 0 14px var(--pink); } }
+.podium { position: relative; overflow: hidden; border-radius: 18px; }
+.podium::before { content: ""; position: absolute; left: 50%; bottom: 0; width: 150%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+  background: repeating-conic-gradient(rgba(244, 169, 31, .3) 0 8deg, transparent 8deg 16deg);
+  -webkit-mask: radial-gradient(circle, #000 15%, transparent 68%); mask: radial-gradient(circle, #000 15%, transparent 68%);
+  animation: rays 22s linear infinite; }
+@keyframes rays { from { transform: translate(-50%, 50%) rotate(0); } to { transform: translate(-50%, 50%) rotate(360deg); } }
+.pod { position: relative; z-index: 1; }
+.pod .blk { transform-origin: bottom; animation: grow 1s cubic-bezier(.2, 1.3, .4, 1) both; }
+.pod.p3 .blk { animation-delay: .2s; } .pod.p2 .blk { animation-delay: .5s; } .pod.p1 .blk { animation-delay: .9s; }
+@keyframes grow { from { transform: scaleY(0); } }
+.pod .crown { display: inline-block; animation: crownbob 1.6s ease-in-out infinite alternate; filter: drop-shadow(0 0 10px var(--gold)); }
+@keyframes crownbob { from { transform: translateY(0) rotate(-10deg); } to { transform: translateY(-8px) rotate(10deg) scale(1.15); } }
+.me { animation: tagglow 3s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  #sparkles span { opacity: .5; } .float, .shoot, .neb { display: none; }
+}
+</style>
+</head>
+<body>
+<div id="sparkles" aria-hidden="true"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div id="fx" aria-hidden="true"></div>
+<div class="wrap">
+  <header>
+    <i class="orb o1">✦</i><i class="orb o2">✧</i><i class="orb o3">✦</i><i class="orb o4">✧</i>
+    <span class="script">glitter &amp; glam edition</span>
+    <h1>Girls Night Trivia</h1>
+    <div id="meBox"></div>
+  </header>
+  <main id="main" class="wrap" style="padding:0;max-width:none"><div class="card"><p class="hint">Fluffing the sparkles…</p></div></main>
+</div>
+
+<script src="mqtt.min.js"></script>
+<script>
+const QS = [
+  { c: "pop", q: "In Mean Girls, what day of the week do you wear pink?", o: ["Fridays", "Wednesdays", "Mondays", "Saturdays"], a: 1, f: "\"On Wednesdays we wear pink.\" Fetch is still never going to happen." },
+  { c: "lb", q: "Which tree is on the Lebanese flag?", o: ["Olive", "Palm", "Cedar", "Fig"], a: 2, f: "The Cedar of Lebanon has been a national symbol for thousands of years." },
+  { c: "pop", q: "What is the name of Elle Woods' chihuahua in Legally Blonde?", o: ["Bella", "Bruiser", "Biscuit", "Bandit"], a: 1, f: "Bruiser Woods: the most iconic dog at Harvard Law." },
+  { c: "dk", q: "Which jewelry brand famous for its charm bracelets was founded in Copenhagen?", o: ["Pandora", "Swarovski", "Tiffany", "Alex and Ani"], a: 0, f: "Pandora started in 1982 as a tiny jewelry shop in Copenhagen." },
+  { c: "pop", q: "Which Taylor Swift album is named after her birth year?", o: ["Fearless", "Red", "1989", "Lover"], a: 2, f: "Taylor was born on December 13, 1989." },
+  { c: "se", q: "Which song won ABBA the Eurovision Song Contest in 1974?", o: ["Waterloo", "Dancing Queen", "Mamma Mia", "Fernando"], a: 0, f: "Waterloo launched ABBA to world fame from Brighton, England." },
+  { c: "pop", q: "Which designer is famous for his red-soled shoes?", o: ["Jimmy Choo", "Manolo Blahnik", "Christian Louboutin", "Steve Madden"], a: 2, f: "Louboutin painted a sole red with nail polish in 1993 and never looked back." },
+  { c: "gr", q: "On which Greek island was Mamma Mia! mostly filmed?", o: ["Santorini", "Mykonos", "Crete", "Skopelos"], a: 3, f: "The wedding chapel is Agios Ioannis on Skopelos, perched on a rock." },
+  { c: "pop", q: "In Sex and the City, which shoe brand does Carrie Bradshaw adore?", o: ["Manolo Blahnik", "Dr. Martens", "Ugg", "Prada"], a: 0, f: "\"I like my money right where I can see it: hanging in my closet.\"" },
+  { c: "cl", q: "Which Hollywood star was born in Santiago, Chile?", o: ["Oscar Isaac", "Pedro Pascal", "Antonio Banderas", "Diego Luna"], a: 1, f: "Pedro Pascal was born in Santiago and moved to the US as a baby." },
+  { c: "pop", q: "What is Barbie's full name?", o: ["Barbara Millicent Roberts", "Barbara Jane Mattel", "Barbie Ann Stevens", "Barbara Elizabeth Ruth"], a: 0, f: "She was named after Ruth Handler's daughter Barbara." },
+  { c: "al", q: "What does \"Dua\" in Dua Lipa mean in Albanian?", o: ["Star", "Dance", "I love / I want", "Moon"], a: 2, f: "Dua Lipa's parents are Albanian from Kosovo, and she was born in London." },
+  { c: "pop", q: "What was Beyoncé's alter ego called?", o: ["Sasha Fierce", "Queen B", "Yoncé Noir", "Bey Rae"], a: 0, f: "Sasha Fierce took over the stage on the 2008 album I Am... Sasha Fierce." },
+  { c: "lb", q: "Which Lebanese designer made the burgundy gown Halle Berry wore when she won her Oscar in 2002?", o: ["Zuhair Murad", "Elie Saab", "Georges Hobeika", "Rabih Kayrouz"], a: 1, f: "That dress put Elie Saab on the Hollywood map." },
+  { c: "pop", q: "How does Gossip Girl sign off?", o: ["Kisses, GG", "Love, Serena", "XOXO", "Spotted!"], a: 2, f: "You know you love her." },
+  { c: "dk", q: "What do Danes call a Danish pastry?", o: ["Wienerbrød (Vienna bread)", "Kanelsnegl (cinnamon snail)", "Sødt brød (sweet bread)", "Dansk kage (Danish cake)"], a: 0, f: "Danish pastry came to Denmark with Austrian bakers, so Danes named it after Vienna." },
+  { c: "pop", q: "Who sings \"Espresso\"?", o: ["Olivia Rodrigo", "Sabrina Carpenter", "Dua Lipa", "Tate McRae"], a: 1, f: "\"That's that me, espresso.\" Summer 2024 belonged to Sabrina." },
+  { c: "se", q: "Which fashion retailer was founded in Västerås, Sweden in 1947?", o: ["Zara", "Mango", "H&M", "Uniqlo"], a: 2, f: "H&M started as Hennes, a women's clothing shop. \"Hennes\" means \"hers\" in Swedish." },
+  { c: "pop", q: "Which singer is behind \"Good Luck, Babe!\"?", o: ["Chappell Roan", "Charli XCX", "Gracie Abrams", "Billie Eilish"], a: 0, f: "Chappell Roan also gave us Pink Pony Club and Hot To Go!" },
+  { c: "cl", q: "The giant stone heads of Easter Island, which belongs to Chile, are called what?", o: ["Moai", "Totems", "Menhirs", "Kachina"], a: 0, f: "There are almost 900 moai, carved by the Rapa Nui people." },
+  { c: "pop", q: "Who plays Glinda in the 2024 movie Wicked?", o: ["Anne Hathaway", "Zendaya", "Ariana Grande", "Hailee Steinfeld"], a: 2, f: "Ariana's performance earned her an Oscar nomination." },
+  { c: "gr", q: "Which Greek singer won Eurovision in 2005 with \"My Number One\"?", o: ["Anna Vissi", "Helena Paparizou", "Despina Vandi", "Sakis Rouvas"], a: 1, f: "Helena Paparizou was born in Sweden to Greek parents." },
+  { c: "pop", q: "Which zodiac sign is symbolised by the scales?", o: ["Virgo", "Capricorn", "Libra", "Gemini"], a: 2, f: "Libra is the only zodiac sign represented by an object instead of a creature." },
+  { c: "se", q: "Which Swedish producer wrote \"...Baby One More Time\" for Britney Spears?", o: ["Avicii", "Max Martin", "Calvin Harris", "Swedish House Mafia"], a: 1, f: "Max Martin has written more US number-one hits than almost anyone alive." },
+  { c: "pop", q: "What is hyaluronic acid best known for in skincare?", o: ["Exfoliating", "Brightening", "Holding moisture", "Fighting acne"], a: 2, f: "It can hold up to 1000 times its weight in water." },
+  { c: "lb", q: "Which global pop star has Lebanese roots on her father's side?", o: ["Shakira", "Jennifer Lopez", "Rihanna", "Lady Gaga"], a: 0, f: "Shakira's full surname is Mebarak, from her Lebanese grandparents." },
+  { c: "al", q: "What does the Albanian name for Albania, Shqipëria, mean?", o: ["Land of the Mountains", "Land of the Eagles", "Land of Honey", "Land of the Sea"], a: 1, f: "The black double-headed eagle on Albania's flag is a nod to that." },
+  { c: "pop", q: "Which actress played Vivian in Pretty Woman?", o: ["Meg Ryan", "Sandra Bullock", "Julia Roberts", "Reese Witherspoon"], a: 2, f: "Julia Roberts's role in Pretty Woman earned her an Oscar nomination." },
+  { c: "gr", q: "The blue eye charm, called a mati, is meant to protect you from what?", o: ["Bad luck in love", "The evil eye", "Seasickness", "Jealous exes"], a: 1, f: "You will see matia on boats, doors, and jewelry all around Greece." },
+  { c: "cl", q: "Who was the first Latin American writer to win the Nobel Prize in Literature?", o: ["Pablo Neruda", "Isabel Allende", "Gabriela Mistral", "Frida Kahlo"], a: 2, f: "Gabriela Mistral won in 1945. Neruda followed in 1971." },
+  { c: "dk", q: "Queen Mary of Denmark was born in which country?", o: ["Sweden", "Australia", "United Kingdom", "Canada"], a: 1, f: "Mary Donaldson met Crown Prince Frederik in a Sydney pub during the 2000 Olympics." },
+  { c: "al", q: "Tirana's international airport is named after which famous humanitarian?", o: ["Mother Teresa", "Florence Nightingale", "Princess Diana", "Malala"], a: 0, f: "Mother Teresa was ethnically Albanian, and the airport is named Nënë Tereza." }
+];
+const CATS = {
+  pop: ["Girly Pop", "💅"], lb: ["Lebanon", "🇱🇧"], dk: ["Denmark", "🇩🇰"], se: ["Sweden", "🇸🇪"],
+  cl: ["Chile", "🇨🇱"], gr: ["Greece", "🇬🇷"], al: ["Albania", "🇦🇱"]
+};
+const PTS = 100;
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+function makeId() {
+  let id = store.get("gnt-id");
+  if (!/^[a-z0-9]{8,40}$/.test(id || "")) { id = Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => (b % 36).toString(36)).join(""); store.set("gnt-id", id); }
+  return id;
+}
+let uid = makeId(), hostCode = "", isHost = false, lastSig = "", players = [], game = { phase: "lobby", q: 0 };
+let lastScreen = "", gotPlayers = false, gotGame = false, fatal = null, resetArmed = false, lastRevealKey = "", lastKey = "";
+
+/* space glam background */
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const rnd = (a, b) => a + Math.random() * (b - a);
+const GLYPHS = ["✦", "✧", "✨", "💖", "⭐", "🩷", "💫", "🌸"];
+(function () {
+  const box = $("sparkles");
+  const add = (tag, cls, css, text) => { const e = document.createElement(tag); if (cls) e.className = cls; e.style.cssText = css || ""; if (text) e.textContent = text; box.appendChild(e); return e; };
+  [["var(--lilac)", "-10vw", "-8vh", 60], ["var(--pink)", "60vw", "30vh", 70], ["var(--gold)", "-5vw", "70vh", 50]].forEach(([c, l, t, s], i) =>
+    add("div", "neb", `background:radial-gradient(circle,${c},transparent 70%);left:${l};top:${t};width:${s}vw;height:${s}vw;animation-delay:${-i * 5}s`));
+  const cols = ["var(--star)", "var(--gold)", "var(--pink)", "var(--star)"];
+  for (let i = 0; i < 70; i++)
+    add("span", "", `left:${rnd(0, 100)}%;top:${rnd(0, 100)}%;font-size:${rnd(8, 26)}px;color:${cols[i % 4]};animation-delay:${rnd(0, 4)}s;animation-duration:${rnd(2.2, 5)}s`, i % 3 ? "✦" : "✧");
+  const fl = ["🪐", "🌙", "💖", "✨", "🦄", "🌸", "🪩", "💅", "🎀", "⭐", "💫", "🩷", "🧚‍♀️", "💎"];
+  fl.forEach((g, i) => add("div", "float", `left:${rnd(2, 94)}%;--s:${rnd(18, 34)}px;--d:${rnd(18, 34)}s;--l:${-rnd(0, 30)}s;--x:${rnd(-60, 60)}px`, g));
+  add("div", "planet p-a", "", "🪐");
+  add("div", "planet p-b", "", "🌙");
+  if (!REDUCED) setInterval(() => {
+    if (document.hidden) return;
+    const s = add("div", "shoot", `left:${rnd(0, 45)}%;top:${rnd(0, 30)}%`);
+    setTimeout(() => s.remove(), 1200);
+  }, 3200);
+})();
+
+/* sparkle bursts and trail */
+function burst(x, y, n, spread) {
+  if (REDUCED) return;
+  const fx = $("fx");
+  while (fx.children.length > 140) fx.firstChild.remove();
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement("span"), a = Math.random() * 6.283, d = spread * rnd(0.4, 1);
+    s.className = "sp"; s.textContent = GLYPHS[(Math.random() * GLYPHS.length) | 0];
+    s.style.cssText = `left:${x}px;top:${y}px;font-size:${rnd(10, 24)}px;--dx:${Math.cos(a) * d}px;--dy:${Math.sin(a) * d + 24}px;--t:${rnd(0.6, 1.1)}s`;
+    fx.appendChild(s); setTimeout(() => s.remove(), 1200);
+  }
+}
+let lastTrail = 0;
+addEventListener("pointermove", (e) => { const t = performance.now(); if (t - lastTrail > 45) { lastTrail = t; burst(e.clientX, e.clientY, 1, 26); } });
+addEventListener("pointerdown", (e) => burst(e.clientX, e.clientY, 14, 90));
+
+/* confetti */
+function confetti(n) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = $("confetti"), ctx = cv.getContext("2d");
+  cv.width = innerWidth; cv.height = innerHeight;
+  const cols = ["#ff2d92", "#ffb8dc", "#f4a91f", "#c9a8ff", "#ffffff"];
+  const ps = Array.from({ length: n || 120 }, () => ({
+    g: Math.random() < 0.3 ? ["💖", "✨", "⭐", "🦄", "🌸", "🩷"][(Math.random() * 6) | 0] : null,
+    x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * 0.4, r: 4 + Math.random() * 6,
+    vx: -1.5 + Math.random() * 3, vy: 2 + Math.random() * 3.5, c: cols[(Math.random() * cols.length) | 0], a: Math.random() * 6
+  }));
+  let t = 0;
+  (function frame() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ps.forEach((p) => {
+      p.x += p.vx; p.y += p.vy; p.a += 0.15;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c;
+      if (p.g) { ctx.font = p.r * 3 + "px serif"; ctx.fillText(p.g, 0, 0); } else ctx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r);
+      ctx.restore();
+    });
+    if (++t < 200) requestAnimationFrame(frame); else ctx.clearRect(0, 0, cv.width, cv.height);
+  })();
+}
+
+/* scoring */
+function scoredCount() {
+  if (game.phase === "final") return QS.length;
+  if (game.phase === "reveal") return game.q + 1;
+  if (game.phase === "question") return game.q;
+  return 0;
+}
+function scoreOf(p, upTo) {
+  let s = 0;
+  const a = p.answers || {};
+  for (let i = 0; i < upTo; i++) if (a[i] === QS[i].a) s += PTS;
+  return s;
+}
+function ranked() {
+  const n = scoredCount();
+  const list = players.map((p) => ({ ...p, score: scoreOf(p, n) }));
+  list.sort((a, b) => b.score - a.score || String(a.name).localeCompare(String(b.name)));
+  let rank = 0, prev = null;
+  list.forEach((p, i) => { if (p.score !== prev) { rank = i + 1; prev = p.score; } p.rank = rank; });
+  return list;
+}
+const me = () => players.find((p) => p.id === uid);
+
+/* live sync over a free public MQTT broker: every player writes only their own retained doc */
+const ROOM = (new URLSearchParams(location.search).get("room") || "7f3k9x2m").replace(/[^a-z0-9]/gi, "");
+const TOPIC = "girlsnight/" + ROOM + "/";
+const BROKERS = ["wss://broker.hivemq.com:8884/mqtt", "wss://broker.emqx.io:8084/mqtt"];
+const HOST_CODE = "girlypop";
+const docs = { game: null, p: {} };
+let client = null, brokerIx = 0, connected = false, ready = false, applyTimer = 0;
+function applyDocs() {
+  clearTimeout(applyTimer);
+  applyTimer = setTimeout(() => {
+    if (!ready) return;
+    players = Object.entries(docs.p).map(([id, v]) => ({ ...v, id })).sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
+    game = docs.game || { phase: "lobby", q: 0 };
+    gotPlayers = gotGame = true; fatal = null; rerender();
+  }, 60);
+}
+function pub(path, obj) {
+  const body = obj ? JSON.stringify(obj) : "";
+  if (client) client.publish(TOPIC + path, body, { retain: true, qos: 1 });
+}
+function connect() {
+  client = mqtt.connect(BROKERS[brokerIx], { clientId: "gnt-" + uid + "-" + Math.random().toString(16).slice(2, 8), reconnectPeriod: 2000, connectTimeout: 8000 });
+  client.on("connect", () => {
+    connected = true;
+    client.subscribe(TOPIC + "#", { qos: 1 });
+    if (!ready) setTimeout(() => { ready = true; applyDocs(); }, 1200);
+  });
+  client.on("close", () => { connected = false; });
+  client.on("message", (topic, buf) => {
+    const path = topic.slice(TOPIC.length), text = buf.toString();
+    let obj = null;
+    try { obj = text ? JSON.parse(text) : null; } catch (e) { return; }
+    if (path === "game") docs.game = obj;
+    else if (path.startsWith("p/")) { if (obj) docs.p[path.slice(2)] = obj; else delete docs.p[path.slice(2)]; }
+    applyDocs();
+  });
+  setTimeout(() => {
+    if (connected) return;
+    if (brokerIx < BROKERS.length - 1) { client.end(true); brokerIx++; connect(); }
+    else if (!ready) { fatal = "noaccess"; render(); }
+  }, 9000);
+}
+const strip = (p) => ({ name: p.name, answers: p.answers || {}, joinedAt: p.joinedAt || Date.now() });
+function hostOp(op) {
+  let next = null;
+  if (op === "start") next = { phase: "question", q: 0 };
+  if (op === "reveal") next = { phase: "reveal", q: game.q };
+  if (op === "next") next = game.q >= QS.length - 1 ? { phase: "final", q: game.q } : { phase: "question", q: game.q + 1 };
+  if (op === "finish") next = { phase: "final", q: game.q };
+  if (op === "reset") {
+    players.forEach((p) => { const d = { ...strip(p), answers: {} }; docs.p[p.id] = d; pub("p/" + p.id, d); });
+    next = { phase: "lobby", q: 0 };
+  }
+  if (!next) return;
+  docs.game = { ...next, at: Date.now() };
+  pub("game", docs.game);
+  applyDocs();
+}
+function join(name) {
+  name = name.trim().slice(0, 24);
+  if (!name) return;
+  const d = strip({ ...(docs.p[uid] || {}), name });
+  docs.p[uid] = d; pub("p/" + uid, d); applyDocs();
+}
+function answer(i) {
+  const m = me();
+  if (!m || game.phase !== "question") return;
+  const d = strip({ ...m, answers: { ...(m.answers || {}), [game.q]: i } });
+  docs.p[uid] = d; pub("p/" + uid, d); applyDocs();
+}
+function newGame() {
+  if (!resetArmed) { resetArmed = true; render(); return; }
+  resetArmed = false;
+  hostOp("reset");
+}
+function tryUnlock() {
+  if (codeDraft.trim().toLowerCase() !== HOST_CODE) { flash("Wrong code. Try again!"); return; }
+  isHost = true; store.set("gnt-host", "1"); codeDraft = ""; lastKey = ""; render();
+}
+function flash(msg) {
+  const h = document.querySelector(".hint.flash") || Object.assign(document.createElement("p"), { className: "hint flash" });
+  h.textContent = msg; $("main").prepend(h); setTimeout(() => h.remove(), 4000);
+}
+
+/* views */
+function boardHtml(list, limit) {
+  const medals = { 1: "👑" };
+  return '<ol class="board">' + list.slice(0, limit || list.length).map((p) =>
+    `<li class="row${p.id === uid ? " you" : ""}"><span class="rk">${medals[p.rank] && p.score > 0 ? medals[p.rank] : p.rank}</span><span class="nm">${esc(p.name)}${p.id === uid ? " (you)" : ""}</span><span class="pt">${p.score}</span></li>`
+  ).join("") + "</ol>";
+}
+const whoChips = () => players.map((p) => `<span class="chip">${esc(p.name)}</span>`).join("");
+const whoCount = () => (players.length ? `Signed up so far (${players.length})` : "Nobody has signed up yet. Be the first!");
+let codeDraft = "";
+function hostPanel() {
+  if (!isHost) {
+    if (game.phase !== "lobby") return "";
+    return `<section class="card host"><span class="lbl">Host? Enter the secret code</span><div class="btns"><input type="text" id="codeInput" value="${esc(codeDraft)}" placeholder="Secret code" aria-label="Secret host code" autocomplete="off" autocapitalize="off"><button class="btn" data-act="unlock">Unlock</button></div></section>`;
+  }
+  const last = game.q >= QS.length - 1;
+  let b = "";
+  if (game.phase === "lobby") b = `<button class="btn" data-act="start">Start the game</button>`;
+  if (game.phase === "question") b = `<button class="btn" data-act="reveal">Reveal answer</button><button class="btn ghost" data-act="finish">Skip to results</button>`;
+  if (game.phase === "reveal") b = `<button class="btn" data-act="next">${last ? "See final results" : "Next question"}</button><button class="btn ghost" data-act="finish">Skip to results</button>`;
+  const reset = `<button class="btn ghost" data-act="reset">${resetArmed ? "Tap again to wipe all scores" : "New game"}</button>`;
+  return `<section class="card host"><span class="lbl">Host controls (only you see these)</span><div class="btns">${b}${game.phase !== "lobby" ? reset : ""}</div></section>`;
+}
+function view() {
+  if (fatal === "noaccess") return `<div class="card"><h2>Can't reach the game</h2><p>Check your connection, then reload the page.</p></div>`;
+  if (!gotPlayers || !gotGame) return `<div class="card"><p class="hint">Fluffing the sparkles…</p></div>`;
+  const m = me();
+  if (!m) {
+    return `<form class="card" id="joinForm"><span class="tag">Welcome, gorgeous</span><h2>What's your name?</h2>
+      <input type="text" id="nameInput" maxlength="24" autocomplete="off" placeholder="Your name" aria-label="Your name">
+      <button class="btn" type="submit">Join the party</button>
+      <div><p class="sub" id="whoCount">${whoCount()}</p><div class="chips" id="whoList">${whoChips()}</div></div>
+      </form>${hostPanel()}`;
+  }
+  const ph = game.phase;
+  if (ph === "lobby") {
+    const list = players.map((p) => `<span class="chip">${esc(p.name)}</span>`).join("");
+    return `<section class="card"><span class="tag">Lobby</span><h2>Grab a drink, ${esc(m.name)}</h2>
+      <p class="sub">${QS.length} questions. Talk it out with your table, then lock in your own answer. 100 points each.</p>
+      <div class="chips">${list}</div><p class="hint">${isHost ? "Start when everyone has joined." : "Waiting for the host to start…"}</p></section>${hostPanel()}`;
+  }
+  if (ph === "final") {
+    const l = ranked(), top = l.slice(0, 3);
+    const order = [top[1], top[0], top[2]].filter(Boolean);
+    const cls = (p) => "p" + p.rank;
+    const pod = order.map((p) => `<div class="pod ${cls(p)}">${p.rank === 1 ? '<span class="crown">👑</span>' : ""}<span class="nm">${esc(p.name)}</span><div class="blk">${p.score}</div></div>`).join("");
+    return `<section class="card"><span class="tag">Final results</span><h2>${esc(l[0] ? l[0].name : "Nobody")} takes the crown</h2><div class="podium">${pod}</div>${boardHtml(l)}</section>${hostPanel()}`;
+  }
+  const Q = QS[game.q], cat = CATS[Q.c];
+  const prog = `<div class="prog"><span>Question ${game.q + 1} of ${QS.length}</span><span>${cat[1]} ${cat[0]}</span></div><div class="bar"><i style="width:${((game.q + (ph === "reveal" ? 1 : 0)) / QS.length) * 100}%"></i></div>`;
+  const mine = (m.answers || {})[game.q];
+  const counts = [0, 0, 0, 0];
+  players.forEach((p) => { const v = (p.answers || {})[game.q]; if (v !== undefined) counts[v]++; });
+  const answered = counts.reduce((a, b) => a + b, 0);
+  const L = "ABCD";
+  if (ph === "question") {
+    const opts = Q.o.map((t, i) => `<button class="opt${mine === i ? " sel" : ""}" data-pick="${i}"><span class="letter">${L[i]}</span><span class="txt">${esc(t)}</span></button>`).join("");
+    return `<section class="card">${prog}<span class="tag">${cat[1]} ${cat[0]}</span><p class="q">${esc(Q.q)}</p><div class="opts">${opts}</div>
+      <p class="hint">${mine === undefined ? "Chat with the girls, then pick your own answer." : "Locked in. You can still change it until the reveal."}<br>${answered} of ${players.length} answered</p></section>${hostPanel()}`;
+  }
+  const opts = Q.o.map((t, i) => {
+    const k = i === Q.a ? "right" : mine === i ? "wrong" : "";
+    return `<button class="opt ${k}" disabled><span class="letter">${i === Q.a ? "✓" : L[i]}</span><span class="txt">${esc(t)}</span><span class="cnt">${counts[i]}</span></button>`;
+  }).join("");
+  const got = players.filter((p) => (p.answers || {})[game.q] === Q.a).map((p) => esc(p.name));
+  const verdict = mine === Q.a ? `<p class="mine-up">+${PTS} points. Nailed it!</p>` : mine === undefined ? `<p class="mine-no">No answer this round</p>` : `<p class="mine-no">Not this time</p>`;
+  return `<section class="card">${prog}<span class="tag">${cat[1]} ${cat[0]}</span><p class="q">${esc(Q.q)}</p><div class="opts">${opts}</div>${verdict}
+    <div class="fact"><b>Fun fact:</b> ${esc(Q.f)}</div>
+    <p class="sub">${got.length ? "Got it right: " + got.join(", ") : "Nobody got it. Wow."}</p></section>
+    <section class="card"><span class="tag">Scoreboard</span>${boardHtml(ranked())}</section>${hostPanel()}`;
+}
+function render() {
+  const key = [fatal, gotPlayers, gotGame, !!me(), game.phase, game.q, resetArmed].join("|");
+  const joinOpen = !me() && document.getElementById("nameInput");
+  if (joinOpen && key === lastKey) return;
+  lastKey = key;
+  const screen = [game.phase, game.q, !!me(), fatal].join("|");
+  $("main").classList.toggle("enter", screen !== lastScreen);
+  lastScreen = screen;
+  $("main").innerHTML = view();
+  document.querySelectorAll(".chip, .row").forEach((e, i) => e.style.setProperty("--i", i));
+  const m = me();
+  $("meBox").innerHTML = m ? `<span class="me">${esc(m.name)} · <b>${scoreOf(m, scoredCount())}</b> pts</span>` : "";
+  if (m && game.phase === "reveal") {
+    const rk = "r" + game.q;
+    if (rk !== lastRevealKey) { lastRevealKey = rk; if ((m.answers || {})[game.q] === QS[game.q].a) confetti(80); }
+  }
+  if (m && game.phase === "final" && lastRevealKey !== "final") { lastRevealKey = "final"; confetti(220); }
+  if (game.phase !== "final" && lastRevealKey === "final") lastRevealKey = "";
+}
+/* the scoreboard and answer counts change without a phase change, so re-render on data too */
+function rerender() {
+  if (!me() && $("nameInput")) { $("whoList").innerHTML = whoChips(); $("whoCount").textContent = whoCount(); return; }
+  const codeFocused = document.activeElement && document.activeElement.id === "codeInput";
+  lastKey = ""; render();
+  if (codeFocused && $("codeInput")) { const c = $("codeInput"); c.focus(); c.setSelectionRange(c.value.length, c.value.length); }
+}
+document.addEventListener("input", (e) => { if (e.target.id === "codeInput") codeDraft = e.target.value; });
+document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.id === "codeInput") tryUnlock(); });
+
+document.addEventListener("click", (e) => {
+  const pick = e.target.closest("[data-pick]");
+  if (pick) return answer(+pick.dataset.pick);
+  const act = e.target.closest("[data-act]");
+  if (!act) return;
+  const a = act.dataset.act;
+  if (a === "unlock") return tryUnlock();
+  if (!isHost) return;
+  if (a !== "reset") resetArmed = false;
+  if (["start", "reveal", "next", "finish"].includes(a)) hostOp(a);
+  if (a === "reset") newGame();
+});
+document.addEventListener("submit", (e) => {
+  if (e.target.id !== "joinForm") return;
+  e.preventDefault();
+  join($("nameInput").value);
+});
+
+(function boot() {
+  render();
+  if (store.get("gnt-host") === "1") isHost = true;
+  connect();
+})();
+</script>
+</body>
+</html>
