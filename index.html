@@ -213,7 +213,7 @@ h1 { background: linear-gradient(100deg, var(--ink) 0 32%, var(--pink) 44%, var(
     <i class="orb o1">✦</i><i class="orb o2">✧</i><i class="orb o3">✦</i><i class="orb o4">✧</i>
     <span class="script">glitter &amp; glam edition</span>
     <h1>Girls Night Trivia</h1>
-    <div id="meBox"></div>
+    <div id="meBox"></div><div id="status" class="sub"></div>
   </header>
   <main id="main" class="wrap" style="padding:0;max-width:none"><div class="card"><p class="hint">Fluffing the sparkles…</p></div></main>
 </div>
@@ -368,19 +368,29 @@ const BROKERS = ["wss://broker.hivemq.com:8884/mqtt", "wss://broker.emqx.io:8084
 const HOST_CODE = "girlypop";
 const docs = { game: null, p: {} };
 let client = null, brokerIx = 0, connected = false, ready = false, applyTimer = 0;
-function applyDocs() {
+function applyDocs(now) {
   clearTimeout(applyTimer);
-  applyTimer = setTimeout(() => {
-    if (!ready) return;
+  const run = () => {
+    if (!ready && !now) return;
     players = Object.entries(docs.p).map(([id, v]) => ({ ...v, id })).sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
     game = docs.game || { phase: "lobby", q: 0 };
     gotPlayers = gotGame = true; fatal = null; rerender();
-  }, 60);
+  };
+  if (now) run(); else applyTimer = setTimeout(run, 60);
 }
 function pub(path, obj) {
   const body = obj ? JSON.stringify(obj) : "";
   if (client) client.publish(TOPIC + path, body, { retain: true, qos: 1 });
 }
+function setStatus() {
+  const el = document.getElementById("status");
+  if (el) el.textContent = connected ? "● connected" + (brokerIx ? " (backup)" : "") : "○ connecting…";
+}
+setInterval(setStatus, 1000);
+window.addEventListener("error", (e) => {
+  const b = document.getElementById("status");
+  if (b) b.textContent = "Oops: " + (e.message || "error") + " — screenshot this for Ayah";
+});
 function connect() {
   client = mqtt.connect(BROKERS[brokerIx], { clientId: "gnt-" + uid + "-" + Math.random().toString(16).slice(2, 8), reconnectPeriod: 2000, connectTimeout: 8000 });
   client.on("connect", () => {
@@ -417,19 +427,19 @@ function hostOp(op) {
   if (!next) return;
   docs.game = { ...next, at: Date.now() };
   pub("game", docs.game);
-  applyDocs();
+  applyDocs(true);
 }
 function join(name) {
   name = name.trim().slice(0, 24);
   if (!name) return;
   const d = strip({ ...(docs.p[uid] || {}), name });
-  docs.p[uid] = d; pub("p/" + uid, d); applyDocs();
+  docs.p[uid] = d; pub("p/" + uid, d); ready = true; applyDocs(true);
 }
 function answer(i) {
   const m = me();
   if (!m || game.phase !== "question") return;
   const d = strip({ ...m, answers: { ...(m.answers || {}), [game.q]: i } });
-  docs.p[uid] = d; pub("p/" + uid, d); applyDocs();
+  docs.p[uid] = d; pub("p/" + uid, d); applyDocs(true);
 }
 function newGame() {
   if (!resetArmed) { resetArmed = true; render(); return; }
